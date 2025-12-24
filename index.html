@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LivaSoft | Portföy Yönetimi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo-area">
+            <img style="width:800px;" src="livasoft-logo.png.png" alt="LivaSoft Logo" class="logo">
+        </div>
+        <h2 class="main-title">Müşteri URL'leri, Github Repoları ve Kullanıcı Bilgileri</h2>
+    </header>
+
+    <main class="container">
+        <div class="customer-grid" id="customer-list">
+            </div>
+    </main>
+
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            
+            <div class="modal-header">
+                <img src="" id="modal-logo" alt="Client Logo" class="client-detail-logo">
+                <h2 id="modal-client-name">Müşteri Adı</h2>
+            </div>
+
+            <div class="info-sections">
+                <div class="info-card">
+                    <h3><i class="fas fa-link"></i> URL Linkler</h3>
+                    <div class="btn-group">
+                        <a href="" id="link-staging" target="_blank" class="btn btn-stg">Staging</a>
+                        <a href="" id="link-live" target="_blank" class="btn btn-live">Canlı Site</a>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fab fa-github"></i> Github Repoları</h3>
+                    <a href="" id="link-github" target="_blank" class="btn btn-github">
+                        <i class="fab fa-github"></i> Repoyu Aç
+                    </a>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-key"></i> Kullanıcı Bilgileri</h3>
+                    <div class="input-field">
+                        <small>E-Posta</small>
+                        <input type="text" id="info-email" readonly onclick="this.select()">
+                    </div>
+                    <div class="input-field">
+                        <small>Şifre</small>
+                        <div class="pass-box">
+                            <input type="password" id="info-pass" readonly>
+                            <i class="fas fa-eye" onclick="togglePass()"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MÜŞTERİ VERİLERİ (Burası senin panelin)
+const customers = [
+    { id: 1, name: "Shoplivasoft", logo: "http://livasoft.com.tr/content/images/thumbs/f7d233b4-9273-4af2-96c5-eb7d3e8a307d_250.webp", color: "#00d2ff", stg: "https://shop.livasoft.com.tr/", live: "https://shop.livasoft.com.tr/", git: "https://github.com/LivasoftConnector/level1Base", mail: "tester@livasoft.com.tr", pass: "123456" },
+    { id: 2, name: "Uzaq Home", logo: "https://www.livasoft.com.tr/content/files/referanslar/uzaq-home.png", color: "#8B4513", stg: "#", live: "#", git: "https://github.com/LivasoftConnector/level1Base", mail: "info@uzaq.com", pass: "uzaq123" },
+    { id: 3, name: "Yenikoza", logo: "https://www.livasoft.com.tr/Themes/livasoft-new/assets/media/reference/yeni-koza.webp", color: "#333", stg: "#", live: "#", git: "#", mail: "user@koza.com", pass: "koza99" },
+    { id: 4, name: "Vilebrequin", logo: "https://www.livasoft.com.tr/content/files/referanslar/vilebrequinr.png", color: "#000080", stg: "#", live: "#", git: "https://github.com/LivasoftConnector/level1Base", mail: "vile@vile.com", pass: "vile77" },
+    { id: 5, name: "Smartkirala", logo: "https://www.livasoft.com.tr/content/files/referanslar/smartkirala.png", color: "#800080", stg: "#", live: "#", git: "#", mail: "smart@smart.com", pass: "smart10" }, // <--- Virgül eklendi
+    { id: 6, name: "GiovaneGentile", logo: "https://www.livasoft.com.tr/Themes/livasoft-new/assets/media/reference/giovane-gentile.png", color: "#808080", stg: "#", live: "#", git: "#", mail: "smart@smart.com", pass: "smart10" }, // <--- Virgül eklendi
+    { id: 7, name: "KarabasHome", logo: "https://www.livasoft.com.tr/content/files/referanslar/karabashomee.png", color: "#FF8C00", stg: "#", live: "#", git: "https://github.com/LivasoftConnector/level1Base", mail: "smart@smart.com", pass: "smart10" }, // <--- Virgül eklendi
+    { id: 8, name: "Schafrat", logo: "https://www.livasoft.com.tr/content/files/referanslar/scf%C4%B1rat.png", color: "#D8BFD8", stg: "#", live: "#", git: "https://github.com/LivasoftConnector/level1Base", mail: "smart@smart.com", pass: "smart10" }, // <--- Virgül eklendi
+    { id: 9, name: "Nsmart", logo: "https://www.livasoft.com.tr/content/files/referanslar/N-Smart_Beyaz.png", color: "#40E0D0", stg: "#", live: "#", git: "#", mail: "smart@smart.com", pass: "smart10" }, // <--- Virgül eklendi
+    { id: 10, name: "Quum", logo: "https://www.livasoft.com.tr/Themes/livasoft-new/assets/media/reference/quum.jpeg", color: "#FFFDD0", stg: "#", live: "#", git: "#", mail: "smart@smart.com", pass: "smart10" }
+];
+
+        const grid = document.getElementById('customer-list');
+
+        // Ana sayfadaki logoları oluştur
+        customers.forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'logo-card';
+            div.innerHTML = `<img src="${c.logo}" alt="${c.name}">`;
+            div.onclick = () => openModal(c);
+            grid.appendChild(div);
+        });
+
+        function openModal(client) {
+            const modal = document.getElementById('detail-modal');
+            document.getElementById('modal-client-name').innerText = client.name;
+            document.getElementById('modal-logo').src = client.logo;
+            document.getElementById('link-staging').href = client.stg;
+            document.getElementById('link-live').href = client.live;
+            document.getElementById('link-github').href = client.git;
+            document.getElementById('info-email').value = client.mail;
+            document.getElementById('info-pass').value = client.pass;
+            
+            modal.style.setProperty('--accent', client.color);
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('detail-modal').style.display = 'none';
+        }
+
+        function togglePass() {
+            const p = document.getElementById('info-pass');
+            p.type = p.type === 'password' ? 'text' : 'password';
+        }
+    </script>
+</body>
+</html>
